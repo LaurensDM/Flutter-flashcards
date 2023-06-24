@@ -1,6 +1,6 @@
 # Flutter-flashcards
 A simple flashcard app made with Flutter/Dart
 
-##WIP
+## WIP
 
 This project has just started development
