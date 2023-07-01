@@ -1,6 +1,6 @@
 # Flutter Flashcards
 
-A new Flutter project.
+A new Flutter project for managing and creating flashcards that can help with studying.
 
 ## Getting Started
 
