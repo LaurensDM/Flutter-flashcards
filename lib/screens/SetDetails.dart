@@ -1,9 +1,14 @@
 // ignore_for_file: file_names
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class SetDetails extends StatefulWidget {
-  const SetDetails({Key? key}) : super(key: key);
+  final set;
+
+  const SetDetails({Map<String, dynamic>? this.set, Key? key})
+      : super(key: key);
 
   @override
   _SetDetailsState createState() => _SetDetailsState();
@@ -20,10 +25,20 @@ class _SetDetailsState extends State<SetDetails> {
   }
 
   void refreshItems() {
-    final data = cards.keys.map((key) {
-      final value = cards.get(key);
-      return {"key": key, "name": value["name"], "answer": value['answer']};
-    }).toList();
+    final data = cards.keys
+        .map((key) {
+          final value = cards.get(key);
+          return {
+            "key": key,
+            "name": value["name"],
+            "answer": value['answer'],
+            'setId': value['set_id']
+          };
+        })
+        .where(
+          (element) => element['setId'] == widget.set['key'],
+        )
+        .toList();
 
     setState(() {
       items = data.reversed.toList();
@@ -101,7 +116,8 @@ class _SetDetailsState extends State<SetDetails> {
                       if (itemKey == null) {
                         createItem({
                           "name": nameController.text,
-                          "answer": answerController.text
+                          "answer": answerController.text,
+                          'set_id': widget.set['key'],
                         });
                       }
 
@@ -133,7 +149,7 @@ class _SetDetailsState extends State<SetDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter Flashcards'),
+        title: Text(widget.set['name']),
       ),
       body: items.isEmpty
           ? const Center(

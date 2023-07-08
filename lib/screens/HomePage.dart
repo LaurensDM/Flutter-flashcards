@@ -1,17 +1,87 @@
 // ignore_for_file: file_names
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_flashcards/screens/SetDetails.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  var selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = const SetPage();
+        break;
+      case 1:
+        page = const Placeholder();
+        break;
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');
+    }
+    return LayoutBuilder(builder: (context, constraints) {
+      return Scaffold(
+        body: Row(
+          children: [
+            SafeArea(
+              child: NavigationRail(
+                extended: constraints.maxWidth >= 600,
+                backgroundColor: Theme.of(context).colorScheme.outline,
+                destinations: [
+                  NavigationRailDestination(
+                    icon: Icon(
+                      Icons.home,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                    label: Text('Home'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(
+                      Icons.question_answer,
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                    label: Text('Favorites'),
+                  ),
+                ],
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (value) {
+                  setState(() {
+                    selectedIndex = value;
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: Container(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: page,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class SetPage extends StatefulWidget {
+  const SetPage({Key? key}) : super(key: key);
+
+  @override
+  State<SetPage> createState() => _SetPageState();
+}
+
+class _SetPageState extends State<SetPage> {
   List<Map<String, dynamic>> items = [];
 
   final sets = Hive.box('sets_box');
@@ -31,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "description": value['description']
       };
     }).toList();
-
+    stdout.writeln(data);
     setState(() {
       items = data.reversed.toList();
     });
@@ -163,7 +233,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     subtitle: Text(currentItem['description'].toString()),
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const SetDetails()));
+                          builder: (context) => SetDetails(set: currentItem)));
                     },
                   ),
                 );

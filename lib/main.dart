@@ -11,8 +11,10 @@ void main() async {
   await Hive.box('cards_box').clear();
   final setId = await Hive.box('sets_box')
       .add({'name': "First set", 'description': "This is the first set"});
-  await Hive.box('cards_box')
-      .add({'name': 'app', 'answer': 'Flutter Flashcards', 'set_id': setId});
+  await Hive.box('cards_box').addAll([
+    {'name': 'app', 'answer': 'Flutter Flashcards', 'set_id': setId},
+    {'name': 'Something', 'answer': 'Nothing', 'set_id': 1}
+  ]);
   runApp(const MyApp());
 }
 
