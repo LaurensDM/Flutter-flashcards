@@ -4,10 +4,15 @@ import 'package:flutter_flashcards/screens/HomePage.dart';
 
 void main() async {
   await Hive.initFlutter();
+  await Hive.openBox('sets_box');
   await Hive.openBox('cards_box');
+
+  await Hive.box('sets_box').clear();
   await Hive.box('cards_box').clear();
+  final setId = await Hive.box('sets_box')
+      .add({'name': "First set", 'description': "This is the first set"});
   await Hive.box('cards_box')
-      .add({'name': 'app', 'answer': 'Flutter Flashcards'});
+      .add({'name': 'app', 'answer': 'Flutter Flashcards', 'set_id': setId});
   runApp(const MyApp());
 }
 

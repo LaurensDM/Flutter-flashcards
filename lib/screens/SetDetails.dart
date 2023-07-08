@@ -1,20 +1,17 @@
 // ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
-import 'package:flutter_flashcards/screens/SetDetails.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class SetDetails extends StatefulWidget {
+  const SetDetails({Key? key}) : super(key: key);
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _SetDetailsState createState() => _SetDetailsState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _SetDetailsState extends State<SetDetails> {
   List<Map<String, dynamic>> items = [];
-
-  final sets = Hive.box('sets_box');
+  final cards = Hive.box('cards_box');
 
   @override
   void initState() {
@@ -23,13 +20,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void refreshItems() {
-    final data = sets.keys.map((key) {
-      final value = sets.get(key);
-      return {
-        "key": key,
-        "name": value["name"],
-        "description": value['description']
-      };
+    final data = cards.keys.map((key) {
+      final value = cards.get(key);
+      return {"key": key, "name": value["name"], "answer": value['answer']};
     }).toList();
 
     setState(() {
@@ -38,39 +31,39 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> createItem(Map<String, dynamic> newItem) async {
-    await sets.add(newItem);
+    await cards.add(newItem);
     refreshItems();
   }
 
   Map<String, dynamic> readItem(int key) {
-    final item = sets.get(key);
+    final item = cards.get(key);
     return item;
   }
 
   Future<void> updateItem(int key, Map<String, dynamic> value) async {
-    await sets.put(key, value);
+    await cards.put(key, value);
     refreshItems();
   }
 
   Future<void> deleteItem(int key) async {
-    await sets.delete(key);
+    await cards.delete(key);
     refreshItems();
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('A set has been deleted.'),
+      content: Text('A card has been deleted.'),
     ));
   }
 
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController answerController = TextEditingController();
 
   void showForm(BuildContext context, int? itemKey) async {
     if (itemKey != null) {
       final existingCard =
           items.firstWhere((element) => element['key'] == itemKey);
       nameController.text = existingCard['name'];
-      descriptionController.text = existingCard['description'];
+      answerController.text = existingCard['answer'];
     }
 
     showModalBottomSheet(
@@ -95,9 +88,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     height: 10,
                   ),
                   TextField(
-                    controller: descriptionController,
+                    controller: answerController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(hintText: 'Description'),
+                    decoration: const InputDecoration(hintText: 'Answer'),
                   ),
                   const SizedBox(
                     height: 20,
@@ -108,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (itemKey == null) {
                         createItem({
                           "name": nameController.text,
-                          "description": descriptionController.text
+                          "answer": answerController.text
                         });
                       }
 
@@ -116,13 +109,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (itemKey != null) {
                         updateItem(itemKey, {
                           'name': nameController.text.trim(),
-                          'description': descriptionController.text.trim()
+                          'answer': answerController.text.trim()
                         });
                       }
 
                       // Clear the text fields
                       nameController.text = '';
-                      descriptionController.text = '';
+                      answerController.text = '';
 
                       Navigator.of(context).pop(); // Close the bottom sheet
                     },
@@ -159,13 +152,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   margin: const EdgeInsets.all(10),
                   elevation: 3,
                   child: ListTile(
-                    title: Text(currentItem['name']),
-                    subtitle: Text(currentItem['description'].toString()),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const SetDetails()));
-                    },
-                  ),
+                      title: Text(currentItem['name']),
+                      subtitle: Text(currentItem['answer'].toString()),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Edit button
+                          IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () =>
+                                  showForm(context, currentItem['key'])),
+                          // Delete button
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => deleteItem(currentItem['key']),
+                          ),
+                        ],
+                      )),
                 );
               }),
       // Add new item button
