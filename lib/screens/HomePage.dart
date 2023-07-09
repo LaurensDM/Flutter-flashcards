@@ -3,6 +3,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_flashcards/screens/QuestioningPage.dart';
 import 'package:flutter_flashcards/screens/SetDetails.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -24,7 +25,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = const SetPage();
         break;
       case 1:
-        page = const Placeholder();
+        page = QuestioningPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -43,14 +44,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       Icons.home,
                       color: Theme.of(context).colorScheme.onBackground,
                     ),
-                    label: Text('Home'),
+                    label: const Text('Home'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(
                       Icons.question_answer,
                       color: Theme.of(context).colorScheme.onBackground,
                     ),
-                    label: Text('Favorites'),
+                    label: const Text('Questioning'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
